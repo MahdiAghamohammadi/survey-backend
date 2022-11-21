@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('surveys', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\User::class, 'user_id');
+            $table->foreignId('user_id')->constrained('surveys')->onDelete('cascade');
             $table->string('title', 1000);
             $table->string('slug', 1000);
             $table->tinyInteger('status');
