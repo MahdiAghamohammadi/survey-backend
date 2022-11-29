@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSurveyAnswerRequest;
+use App\Http\Resources\SurveyAnswerResource;
 use App\Http\Resources\SurveyResource;
 use App\Models\Survey;
 use App\Http\Requests\StoreSurveyRequest;
@@ -10,6 +11,7 @@ use App\Http\Requests\UpdateSurveyRequest;
 use App\Models\SurveyAnswer;
 use App\Models\SurveyQuestion;
 use App\Models\SurveyQuestionAnswer;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -69,6 +71,33 @@ class SurveyController extends Controller
             return abort(403, 'Unauthorized action');
         }
         return new SurveyResource($survey);
+    }
+
+    public function showAllAnswers(Request $request)
+    {
+        $user = $request->user();
+        $allAnswers = SurveyAnswer::query()
+            ->join('surveys', 'survey_answers.survey_id', '=', 'surveys.id')
+            ->where('surveys.user_id', $user->id)
+            ->orderBy('end_date', 'DESC')
+            ->getModels('survey_answers.*');
+        return [
+            'allAnswers' => SurveyAnswerResource::collection($allAnswers),
+        ];
+    }
+
+    public function showAnswersBySurveyId(Request $request, Survey $survey)
+    {
+        $user = $request->user();
+        $surveyAnswers = \App\Models\SurveyAnswer::query()
+            ->join('surveys', 'survey_answers.survey_id', '=', 'surveys.id')
+            ->where('surveys.user_id', $user->id)
+            ->where('survey_id', $survey->id)
+            ->orderBy('end_date', 'DESC')
+            ->getModels('survey_answers.*');
+        return [
+            'allAnswers' => SurveyAnswerResource::collection($surveyAnswers),
+        ];
     }
 
     /**
