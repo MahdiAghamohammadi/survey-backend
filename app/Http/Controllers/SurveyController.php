@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSurveyAnswerRequest;
+use App\Http\Resources\AnswerDetailResource;
 use App\Http\Resources\SurveyAnswerResource;
 use App\Http\Resources\SurveyResource;
 use App\Models\Survey;
@@ -10,7 +11,7 @@ use App\Http\Requests\StoreSurveyRequest;
 use App\Http\Requests\UpdateSurveyRequest;
 use App\Models\SurveyAnswer;
 use App\Models\SurveyQuestion;
-use App\Models\SurveyQuestionAnswer;
+use App\Models\SurveyAnswerQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
@@ -120,6 +121,20 @@ class SurveyController extends Controller
         return new SurveyResource($survey);
     }
 
+    public function showAnswerDetails(Survey $survey, SurveyAnswer $surveyAnswer)
+    {
+        $answers = SurveyAnswer::query()->where('survey_id', $survey->id)->get();
+        foreach ($answers as $answer) {
+            foreach ($answer->questions as $question) {
+                if ($question->pivot->survey_answer_id == $surveyAnswer->id) {
+                    return [
+                        'answerDetails' => AnswerDetailResource::collection($answer->questions)
+                    ];
+                }
+            }
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -219,7 +234,7 @@ class SurveyController extends Controller
                 'answer' => is_array($answer) ? json_encode($answer) : $answer
             ];
 
-            $questionAnswer = SurveyQuestionAnswer::create($data);
+            $questionAnswer = SurveyAnswerQuestion::create($data);
         }
 
         return response("", 201);

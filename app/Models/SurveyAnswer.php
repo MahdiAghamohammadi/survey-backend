@@ -18,4 +18,9 @@ class SurveyAnswer extends Model
     {
         return $this->belongsTo(Survey::class);
     }
+
+    public function questions()
+    {
+        return $this->belongsToMany(SurveyQuestion::class,'survey_answer_question')->withPivot('answer');
+    }
 }

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function() {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -26,13 +26,14 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::apiResource('/survey', SurveyController::class);
     Route::get('/show-all-answers', [SurveyController::class, 'showAllAnswers']);
     Route::get('/survey/{survey}/answers', [SurveyController::class, 'showAnswersBySurveyId']);
+    Route::get('/survey/{survey}/answer/{surveyAnswer}', [SurveyController::class, 'showAnswerDetails'])->withoutScopedBindings();
     Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 Route::get('/survey-by-slug/{survey:slug}', [SurveyController::class, 'showForGuest']);
 Route::post('/survey/{survey}/answer', [SurveyController::class, 'storeAnswer']);
 
-Route::controller(AuthController::class)->group(function() {
+Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
 });
