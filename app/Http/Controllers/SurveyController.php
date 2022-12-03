@@ -128,7 +128,8 @@ class SurveyController extends Controller
             foreach ($answer->questions as $question) {
                 if ($question->pivot->survey_answer_id == $surveyAnswer->id) {
                     return [
-                        'answerDetails' => AnswerDetailResource::collection($answer->questions)
+                        'answerDetails' => AnswerDetailResource::collection($answer->questions),
+                        'author' => $answer->author ?? '-'
                     ];
                 }
             }
@@ -218,6 +219,7 @@ class SurveyController extends Controller
 
         $surveyAnswer = SurveyAnswer::create([
             'survey_id' => $survey->id,
+            'author' => $request->author,
             'start_date' => date('Y-m-d H:i:s'),
             'end_date' => date('Y-m-d H:i:s'),
         ]);
